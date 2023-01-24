@@ -19,3 +19,5 @@ css folder:
     StyleSheet1.scss - SCSS stylesheet holding css information for the entire project (all the html pages)
     StyleSheet1.css - CSS stylesheet for connection with html (this is created by compiling the SCSS stylesheet using a compiler in VS Code)
     StyleSheet1.css.map - file created during the compilation of the SCSS stylesheet
+
+Link for video: https://www.dropbox.com/s/yrhh3jgbvuy79ch/Mustaqeem_Lab0.mp4?dl=0
