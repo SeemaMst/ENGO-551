@@ -19,35 +19,34 @@
                       <div class="col-md-6 col-lg-7 d-flex align-items-center">
                         <div class="card-body p-4 p-lg-5 text-black">
           
-                <form action= "{{ url_for('login') }}" method = "post">
-                    <h2 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Welcome to the Bookhub</h2>
-                    <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account:</h5>
+                          <form action= "{{ url_for('login') }}" method = "post">
+                          <h2 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Welcome to the Bookhub</h2>
+                          <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Sign into your account:</h5>
 
-                    <div>
-                        <label> <b>Username:</b> </label>
-                        <input type = "text" class = "form-control mb-2" name = "name" placeholder="Enter your username" required>
+                          <div>
+                            <label> <b>Username:</b> </label>
+                            <input type = "text" class = "form-control mb-2" name = "name" placeholder="Enter your username" required>
+                          </div>
+                          <div>
+                            <label> <b>Password:</b> </label>
+                            <input type = "password" class = "form-control mb-4" name = "Password" placeholder="Enter your password" required>
+                          </div> 
+                          <button class="btn btn-primary btn-block mb-2">Login</button>
+                          </form>
+                          {% if message %}
+                          <div class="alert alert-warning">
+                          <center>{{ message }}</center>
+                          </div>
+                          {% endif %}
+                          <a href="{{ url_for('registration') }}"><center>Click here to Register</center></href></a>
+
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                        <label> <b>Password:</b> </label>
-                        <input type = "password" class = "form-control mb-4" name = "Password" placeholder="Enter your password" required>
-                    </div> 
-                    <button class="btn btn-primary btn-block mb-2">Login</button>
-                </form>
-                {% if message %}
-                <div class="alert alert-warning">
-                  <center>{{ message }}</center>
+                  </div>
                 </div>
-                {% endif %}
-        <a href="{{ url_for('registration') }}"><center>Click here to Register</center></href></a>
-
+              </div>
             </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-</section>
-                
+          </section>              
 </body>
 </html>

@@ -29,7 +29,6 @@ db = scoped_session(sessionmaker(bind=engine))
 def login():
 
     message =""
-
     if request.method == "POST":
         # record the user name and password
         session["name"] = request.form.get("name")

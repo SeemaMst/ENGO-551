@@ -16,7 +16,6 @@ def main():
         data = ( { "isbn": isbn, "title": title, "author": author, "year": year },)
         statement = text("INSERT INTO booklist (isbn, title, author, year) VALUES (:isbn, :title, :author, :year);")
         db.execute(statement, data)
-        print(isbn)
     db.commit()
 
 if __name__=="__main__":

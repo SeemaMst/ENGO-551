@@ -19,22 +19,22 @@
                     <div class="col d-flex align-items-center">
                         <div class="card-body p-4 p-lg-5 text-black">
 
-<h1><center>Welcome to the Bookhub!</center></h1>
-<p>Search through our book database:</p>
+                      <h1><center>Welcome to the Bookhub!</center></h1>
+                      <p>Search through our book database:</p>
 
-<form action= "{{ url_for('home') }}" method = "post">
-    <label> <b>ISBN:</b> </label>
-    <input type = "text" class = "form-control mb-2" name = "isbn" placeholder="Search ISBN...">
-    <label> <b>Title:</b> </label>
-    <input type = "text" class = "form-control mb-2" name = "title" placeholder="Search Title...">
-    <label> <b>Author:</b> </label>
-    <input type = "text" class = "form-control mb-2" name = "author" placeholder="Search Author...">
-    <label> <b>Year:</b> </label>
-    <input type = "text" class = "form-control mb-4" name = "year" placeholder="Search Year...">
-    <button class="btn btn-primary btn-block mb-4">Submit</button>
-</form>
+                      <form action= "{{ url_for('home') }}" method = "post">
+                        <label> <b>ISBN:</b> </label>
+                        <input type = "text" class = "form-control mb-2" name = "isbn" placeholder="Search ISBN...">
+                        <label> <b>Title:</b> </label>
+                        <input type = "text" class = "form-control mb-2" name = "title" placeholder="Search Title...">
+                        <label> <b>Author:</b> </label>
+                        <input type = "text" class = "form-control mb-2" name = "author" placeholder="Search Author...">
+                        <label> <b>Year:</b> </label>
+                        <input type = "text" class = "form-control mb-4" name = "year" placeholder="Search Year...">
+                        <button class="btn btn-primary btn-block mb-4">Submit</button>
+                      </form>
 
-<a href="{{ url_for('logout') }}"><button class="btn btn-light mb-2">Click here to Logout</button></href></a>
+                      <a href="{{ url_for('logout') }}"><button class="btn btn-light mb-2">Click here to Logout</button></href></a>
 
 
                         </div>

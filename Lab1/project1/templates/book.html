@@ -20,65 +20,62 @@
           <div class="col-lg-6 d-flex justify-content-center vh-100 align-items-center" style="background-image: url('https://images.unsplash.com/photo-1457369804613-52c61a468e7d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8YWVzdGhldGljJTIwYm9va3xlbnwwfHwwfHw%3D&w=1000&q=80');">
             <div class="card w-75 h-75" style="border-radius: 1rem;">
                 <div class="card-body">
-                <a href="{{ url_for('home') }}"><button class="btn btn-light mb-2">Return to Book Search</button></href></a>
-                <h1>{{ result[0][1] }}</h1>
-                <p>ISBN: {{ result[0][0] }}</p>
-                <p>Author: {{ result[0][2] }}</p>
-                <p>Year Published: {{ result[0][3] }}</p>
-                <hr>
-                <form action="{{ url_for('book', record_id =result[0][0])}}" method="post">
-                    <div>
-                        <label><b>Review:</b></label>
-                        <textarea type="text" class = "form-control mb-2" name="review" placeholder="Write your review here!" rows="5" required></textarea>
-                    </div>
-                    <div>
-                        <label> <b>Star Rating</b> </label>
-                        <input type = "text" class = "form-control mb-2 w-25" name = "starrating" placeholder="1-5 Stars" required>
-                    </div>
+                    <a href="{{ url_for('home') }}"><button class="btn btn-light mb-2">Return to Book Search</button></href></a>
+                    <h1>{{ result[0][1] }}</h1>
+                    <p>ISBN: {{ result[0][0] }}</p>
+                    <p>Author: {{ result[0][2] }}</p>
+                    <p>Year Published: {{ result[0][3] }}</p>
+                    <hr>
+                    <form action="{{ url_for('book', record_id =result[0][0])}}" method="post">
+                        <div>
+                            <label><b>Review:</b></label>
+                            <textarea type="text" class = "form-control mb-2" name="review" placeholder="Write your review here!" rows="5" required></textarea>
+                        </div>
+                        <div>
+                            <label> <b>Star Rating</b> </label>
+                            <input type = "text" class = "form-control mb-2 w-25" name = "starrating" placeholder="1-5 Stars" required>
+                        </div>
                     
-                    <button class="btn btn-primary btn-block mb-4">Submit!</button>
-                </form>
-                <a href="{{ url_for('logout') }}"><button class="btn btn-light mb-2">Click here to Logout</button></href></a>
-            </div> 
-          </div>
-        </div>
-
-          <div class="col-lg-6 d-flex justify-content-center vh-100 align-items-center" style="background-color:antiquewhite">
-            <div class="card shadow-2-strong w-75 h-75" style="border-radius: 1rem;">
-            <div class="card-body">
-                <h2>Reviews Below:</h2>
-              <div class="table-wrapper-scroll-y my-custom-scrollbar">
-                <table class="table table-borderless mb-0">
-                <thead>
-                        <tr>
-                          <th scope="col">Rating</th>
-                          <th scope="col">Review</th>
-                          <th scope="col">User</th>
-                          <th scope="col">Date Reviewed:</th>
-                        </tr>
-                </thead>
-                    {% set ns = namespace(c=0) %}
-                    {% for review in reviews %}
-
-                <tr>
-                    <td>{{ reviews[ns.c][0] }}</td>
-                    <td>{{ reviews[ns.c][1] }}</td>
-                    <td>{{ reviews[ns.c][2] }}</td>
-                    <td>{{reviews[ns.c][3] }}</td>
-                </tr>
-                    {% set ns.c = ns.c +1 %}
-                    {% else %}
-                    <td>No Reviews Found!<td>   
-                    {% endfor %}
-                </table>
+                        <button class="btn btn-primary btn-block mb-4">Submit!</button>
+                    </form>
+                    <a href="{{ url_for('logout') }}"><button class="btn btn-light mb-2">Click here to Logout</button></href></a>
+                </div> 
             </div>
         </div>
-      </div>
+
+        <div class="col-lg-6 d-flex justify-content-center vh-100 align-items-center" style="background-color:antiquewhite">
+            <div class="card shadow-2-strong w-75 h-75" style="border-radius: 1rem;">
+                <div class="card-body">
+                    <h2>Reviews Below:</h2>
+                    <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                        <table class="table table-borderless mb-0">
+                        <thead>
+                            <tr>
+                            <th scope="col">Rating</th>
+                            <th scope="col">Review</th>
+                            <th scope="col">User</th>
+                            <th scope="col">Date Reviewed:</th>
+                            </tr>
+                        </thead>
+                            {% set ns = namespace(c=0) %}
+                            {% for review in reviews %}
+
+                        <tr>
+                            <td>{{ reviews[ns.c][0] }}</td>
+                            <td>{{ reviews[ns.c][1] }}</td>
+                            <td>{{ reviews[ns.c][2] }}</td>
+                            <td>{{reviews[ns.c][3] }}</td>
+                        </tr>
+                        {% set ns.c = ns.c +1 %}
+                        {% else %}
+                        <td>No Reviews Found!<td>   
+                        {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
           </div>
         </div>
-      </div>
-      
-    
-
+    </div>
 </body>
 </html>
