@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width"; initial-scale="1.0;">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+        <style>
+            table {
+               color: #f7f8f5;
+            }
+         </style>
+    </head>
+<body class="h-100">
+    <section class="vh-10" style="background-image: url('https://mdbootstrap.com/img/Photos/new-templates/tables/img2.jpg');">
+        <div class="container py-5 h-10">
+          <div class="row d-flex justify-content-center align-items-center h-50">
+            <div class="col col-xl-6">
+              <div class="card" style="border-radius: 1rem;">
+                <div class="row g-0">
+                    <div class="col d-flex align-items-center">
+                        <div class="card-body p-4 p-lg-5 text-black">
+
+<h1><center>Welcome to the Bookhub!</center></h1>
+<p>Search through our book database:</p>
+
+<form action= "{{ url_for('home') }}" method = "post">
+    <label> <b>ISBN:</b> </label>
+    <input type = "text" class = "form-control mb-2" name = "isbn" placeholder="Search ISBN...">
+    <label> <b>Title:</b> </label>
+    <input type = "text" class = "form-control mb-2" name = "title" placeholder="Search Title...">
+    <label> <b>Author:</b> </label>
+    <input type = "text" class = "form-control mb-2" name = "author" placeholder="Search Author...">
+    <label> <b>Year:</b> </label>
+    <input type = "text" class = "form-control mb-4" name = "year" placeholder="Search Year...">
+    <button class="btn btn-primary btn-block mb-4">Submit</button>
+</form>
+
+<a href="{{ url_for('logout') }}"><button class="btn btn-light mb-2">Click here to Logout</button></href></a>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p>{{ resultcount }}</p>
+    <div class="bg-image h-100" style="background-color: #6e6a6b;">
+      <div class="mask d-flex align-items-center h-100" style="background-color: rgba(0,0,0,.25);">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <div class="card bg-dark shadow-2-strong" style="border-radius: 1rem;">
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-dark table-borderless mb-0">
+                    <thead>
+                            <tr>
+                              <th scope="col">ISBN</th>
+                              <th scope="col">BOOK TITLE</th>
+                              <th scope="col">AUTHOR</th>
+                              <th scope="col">YEAR PUBLISHED</th>
+                              <th scope="col">MORE INFO</th>
+                            </tr>
+                    </thead>
+                        {% set ns = namespace(c=0) %}
+                        {% for item in result %}
+
+                    <tr>
+                        <td>{{ result[ns.c][0] }}</td>
+                        <td>{{ result[ns.c][1] }}</td>
+                        <td>{{ result[ns.c][2] }}</td>
+                        <td>{{ result[ns.c][3] }}</td>
+                        <td><a href="{{ url_for("book", record_id =result[ns.c][0]) }}">Info About Book</href></td>
+                    </tr>
+                        {% set ns.c = ns.c +1 %}
+                        {% else %}
+                        <td>No Results Found for that query<td>   
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+
+</body>
+</html>
