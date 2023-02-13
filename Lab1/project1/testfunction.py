@@ -20,6 +20,19 @@ author = volume_info["authors"]
 # testword=responsedict["items"]["authors"]
 averagerating=volume_info["averageRating"]
 ratingscount=volume_info["ratingsCount"]
+test1=volume_info["industryIdentifiers"][0]["type"]
+more_info=volume_info["industryIdentifiers"]
+print(more_info)
+print(type(more_info))
+print(len(more_info))
+
+if more_info[1] is not None:
+    check=more_info[0]
+    print(check)
+    print("Looks good!")
+else:
+    print("No bueno :(")
+
 print(ratingscount)
 
 # So we've figured out from this that not all ISBN's work - even if a book actually does exist under it

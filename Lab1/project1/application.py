@@ -183,7 +183,7 @@ def logout():
     return redirect("/")
 
 # Route to output a JSON file per book ISBN
-@app.route("/api/<isbn>")
+@app.route("/api/<isbn>", methods=["GET"])
 def jasonfile(isbn):
     data = ({"isbn": isbn},)
 
@@ -194,6 +194,7 @@ def jasonfile(isbn):
     ratingscount=None
     title=None
     author=None
+    publishdate=None
 
     statement = text("SELECT * FROM booklist WHERE isbn ILIKE :isbn")
 
@@ -203,9 +204,6 @@ def jasonfile(isbn):
         return redirect("/404")
 
     isbntest="isbn:"+isbn
-    
-    # statement = text("SELECT isbn, title, author, year FROM booklist WHERE isbn ILIKE :isbn")
-    # row = db.execute(statement, data)
 
     rows = row.fetchall()
     title=rows[0][1]
@@ -218,24 +216,44 @@ def jasonfile(isbn):
     res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": isbntest})
     responsedict = res.json()
     if responsedict["totalItems"]==1:
-        volume_info = responsedict["items"][0]["volumeInfo"]
-        averagerating=volume_info["averageRating"]
-        ratingscount=volume_info["ratingsCount"]
-        publishdate=volume_info["publishedDate"]
-
-        # THIS PART NEEDS TO BE UPDATED TO MATCH THE PROPER IDENTIFIER
-        test1=volume_info["industryIdentifiers"][0]["type"]
-        test2=volume_info["industryIdentifiers"][1]["type"]
-
-        if test1 == "ISBN_10":
-            isbn10_int=0
-            isbn13_int=1
-        if test2 == "ISBN_10":
-            isbn10_int=1
-            isbn13_int=0
         
-        isbn_10=volume_info["industryIdentifiers"][isbn10_int]["identifier"]
-        isbn_13=volume_info["industryIdentifiers"][isbn13_int]["identifier"]
+        # Indexing to make it easier to query
+        volume_info = responsedict["items"][0]["volumeInfo"]
+
+        if volume_info.get("averageRating") is not None:
+            averagerating=volume_info["averageRating"]
+        
+        if volume_info.get("ratingsCount") is not None:
+            ratingscount=volume_info["ratingsCount"]
+
+        if volume_info.get("publishedDate") is not None:
+            publishdate=volume_info["publishedDate"]
+        
+        ID_list=volume_info["industryIdentifiers"]
+
+        if len(ID_list) >=1:
+            test1=volume_info["industryIdentifiers"][0]["type"]
+            if test1 == "ISBN_10":
+                isbn10_int=0
+                isbn_10=volume_info["industryIdentifiers"][isbn10_int]["identifier"]
+
+            if test1 == "ISBN_13":
+                isbn13_int=0
+                isbn_13=volume_info["industryIdentifiers"][isbn13_int]["identifier"]
+
+        if len(ID_list)==2:
+            test2=volume_info["industryIdentifiers"][1]["type"]
+
+            if test1 == "ISBN_10":
+                isbn10_int=0
+                isbn13_int=1
+
+            if test2 == "ISBN_10":
+                isbn10_int=1
+                isbn13_int=0
+
+            isbn_10=volume_info["industryIdentifiers"][isbn10_int]["identifier"]
+            isbn_13=volume_info["industryIdentifiers"][isbn13_int]["identifier"]
         
     elif responsedict["totalItems"]==0:
         res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": totalcheck})
@@ -245,23 +263,38 @@ def jasonfile(isbn):
             return redirect("/404")
         else:      
             volume_info = responsedict["items"][0]["volumeInfo"]
-            averagerating=volume_info["averageRating"]
-            ratingscount=volume_info["ratingsCount"]
-            
-            test1=volume_info["industryIdentifiers"][0]["type"]
-            test2=volume_info["industryIdentifiers"][1]["type"]
 
-            if test1 == "ISBN_10":
-                isbn10_int=0
-                isbn13_int=1
-            if test2 == "ISBN_10":
-                isbn10_int=1
-                isbn13_int=0
+            if volume_info.get("averageRating") is not None:
+                averagerating=volume_info["averageRating"]
         
-            isbn_10=volume_info["industryIdentifiers"][isbn10_int]["identifier"]
-            isbn_13=volume_info["industryIdentifiers"][isbn13_int]["identifier"]
+            if volume_info.get("ratingsCount") is not None:
+                ratingscount=volume_info["ratingsCount"]
 
-            publishdate=volume_info["publishedDate"]
+            if volume_info.get("publishedDate") is not None:
+                publishdate=volume_info["publishedDate"]
+            
+            ID_list=volume_info["industryIdentifiers"]
+
+            if len(ID_list) >=1:
+                test1=volume_info["industryIdentifiers"][0]["type"]
+                if test1 == "ISBN_10":
+                    isbn10_int=0
+                if test1 == "ISBN_13":
+                    isbn13_int=0
+
+            if len(ID_list)==2:
+                test2=volume_info["industryIdentifiers"][1]["type"]
+
+                if test1 == "ISBN_10":
+                    isbn10_int=0
+                    isbn13_int=1
+
+                if test2 == "ISBN_10":
+                    isbn10_int=1
+                    isbn13_int=0
+
+                isbn_10=volume_info["industryIdentifiers"][isbn10_int]["identifier"]
+                isbn_13=volume_info["industryIdentifiers"][isbn13_int]["identifier"]
 
     # Data to be written
     dictionary = {
@@ -276,6 +309,7 @@ def jasonfile(isbn):
  
     return dictionary
 
+# 404 Error Handler
 @app.errorhandler(404)
 def page_not_found(e):
     return "Error - Page Not Found"
