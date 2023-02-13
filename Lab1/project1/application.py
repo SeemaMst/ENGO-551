@@ -1,4 +1,6 @@
 import os
+import json
+import requests
 
 from flask import Flask, session, render_template, request, redirect
 from flask_session import Session
@@ -7,9 +9,11 @@ from sqlalchemy.sql import text
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from datetime import datetime
+from urllib.request import urlopen
 
 
 app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -116,10 +120,38 @@ reviews = []
 # Book page - page with additional info per book, including book reviews
 @app.route("/book/<record_id>", methods=["POST", "GET"])
 def book(record_id):
+    averagerating="oh man"
+    response=""
     data = ({"isbn": record_id},)
     statement = text("SELECT isbn, title, author, year FROM booklist WHERE isbn ILIKE :isbn")
     row = db.execute(statement, data)
     rows = row.fetchall()
+    title=rows[0][1]
+    print(title)
+    author=rows[0][2]
+    isbntest="isbn:"+record_id
+    titlecheck="intitle:"+title
+    authorcheck=";inauthor:"+author
+    totalcheck=titlecheck+authorcheck
+
+    # Using Google Books API to find ratings
+    res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": isbntest})
+    responsedict = res.json()
+    if responsedict["totalItems"]==1:
+        volume_info = responsedict["items"][0]["volumeInfo"]
+        averagerating=volume_info["averageRating"]
+        ratingscount=volume_info["ratingsCount"]
+        print("YAY")
+    elif responsedict["totalItems"]==0:
+        res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": totalcheck})
+        responsedict=res.json()
+        
+        if responsedict["totalItems"]==0:
+             averagerating="This book does not exist"
+        else:      
+            volume_info = responsedict["items"][0]["volumeInfo"]
+            averagerating=volume_info["averageRating"]
+            ratingscount=volume_info["ratingsCount"]
 
     # Here users can create a review
     if request.method == "POST":
@@ -127,19 +159,87 @@ def book(record_id):
         starrating = request.form.get("starrating")
         today=datetime.today().strftime('%Y-%m-%d')
         reviewdata=({"isbn": record_id, "starrating":starrating, "description":review, "currentuser": session["name"], "date": today })
-        
-        statement=text("""INSERT INTO reviews (id, starrating, description, currentuser, reviewdate) VALUES (:isbn, :starrating, :description, :currentuser, :date );""")
-        db.execute(statement, reviewdata)
+
+        # Check that user has not left a review before
+        statement2 = text("""SELECT starrating, currentuser FROM reviews WHERE currentuser = (:currentuser) AND id = (:isbn)""")
+        reviewtest = db.execute(statement2, reviewdata)
+        reviewtotal = reviewtest.fetchall()
+
+        if reviewtest.rowcount >= 1:
+            response="You have already submitted a review for this book."
+            print(response)
+        else:
+            statement=text("""INSERT INTO reviews (id, starrating, description, currentuser, reviewdate) VALUES (:isbn, :starrating, :description, :currentuser, :date );""")
+            db.execute(statement, reviewdata)
 
     statement2 = text("""SELECT starrating, description, currentuser, reviewdate FROM reviews WHERE id = (:isbn)""")
     reviewtest = db.execute(statement2, data)
     reviewtotal = reviewtest.fetchall()
     
     db.commit()
-    return render_template("book.html", result=rows, reviews=reviewtotal)
+    return render_template("book.html", result=rows, reviews=reviewtotal, test=averagerating, ratingscount=ratingscount, response=response)
 
 # Route if users choose to logout
 @app.route("/logout")
 def logout():
     session["name"] = None
     return redirect("/")
+
+@app.route("/api/<isbn>")
+def jasonfile(isbn):
+    data = ({"isbn": isbn},)
+
+    statement = text("SELECT * FROM booklist WHERE isbn ILIKE :isbn")
+    row = db.execute(statement, data)
+    if row.rowcount == 0:
+        return redirect("/404")
+
+    isbntest="isbn:"+isbn
+    
+    statement = text("SELECT isbn, title, author, year FROM booklist WHERE isbn ILIKE :isbn")
+    row = db.execute(statement, data)
+    rows = row.fetchall()
+    title=rows[0][1]
+    author=rows[0][2]
+    titlecheck="intitle:"+title
+    authorcheck=";inauthor:"+author
+    totalcheck=titlecheck+authorcheck
+
+    # Using Google Books API to find ratings
+    res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": isbntest})
+    responsedict = res.json()
+    if responsedict["totalItems"]==1:
+        volume_info = responsedict["items"][0]["volumeInfo"]
+        averagerating=volume_info["averageRating"]
+        ratingscount=volume_info["ratingsCount"]
+        print("YAY")
+    elif responsedict["totalItems"]==0:
+        res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": totalcheck})
+        responsedict=res.json()
+        
+        if responsedict["totalItems"]==0:
+             averagerating="This book does not exist"
+        else:      
+            volume_info = responsedict["items"][0]["volumeInfo"]
+            averagerating=volume_info["averageRating"]
+            ratingscount=volume_info["ratingsCount"]
+
+    publishdate=volume_info["publishedDate"]
+    # Data to be written
+    dictionary = {
+        "title": title,
+        "author": author,
+        "publishedDate": publishdate,
+        "ISBN_10": "080213825X",
+        "ISBN_13": "9780802138255", 
+        "reviewCount": ratingscount, 
+        "averageRating": averagerating 
+    }
+ 
+    return dictionary
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return "Error - Page Not Found"
+    
+    
