@@ -1,5 +1,4 @@
 import os
-import json
 import requests
 
 from flask import Flask, session, render_template, request, redirect
@@ -9,11 +8,8 @@ from sqlalchemy.sql import text
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from datetime import datetime
-from urllib.request import urlopen
-
 
 app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
@@ -23,6 +19,8 @@ if not os.getenv("DATABASE_URL"):
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
@@ -101,7 +99,7 @@ def home():
         titlecheck = '%' + request.form.get("title")+'%'
         authorcheck = '%'+request.form.get("author")+'%'
         yearcheck = '%'+request.form.get("year")+'%'
-        result = ({"isbn": isbncheck, "title": titlecheck, "author": authorcheck, "year": yearcheck},) # need to fix year so that it matches the int type
+        result = ({"isbn": isbncheck, "title": titlecheck, "author": authorcheck, "year": yearcheck},)
         statement=text("SELECT isbn, title, author, year FROM booklist WHERE isbn ILIKE :isbn AND title ILIKE :title AND author ILIKE :author AND CAST(year AS TEXT) ILIKE :year") # Add year here
         row = db.execute(statement, result)
         rows=row.fetchall()
@@ -120,15 +118,15 @@ reviews = []
 # Book page - page with additional info per book, including book reviews
 @app.route("/book/<record_id>", methods=["POST", "GET"])
 def book(record_id):
-    averagerating="oh man"
     response=""
     data = ({"isbn": record_id},)
     statement = text("SELECT isbn, title, author, year FROM booklist WHERE isbn ILIKE :isbn")
     row = db.execute(statement, data)
     rows = row.fetchall()
+
     title=rows[0][1]
-    print(title)
     author=rows[0][2]
+
     isbntest="isbn:"+record_id
     titlecheck="intitle:"+title
     authorcheck=";inauthor:"+author
@@ -141,7 +139,7 @@ def book(record_id):
         volume_info = responsedict["items"][0]["volumeInfo"]
         averagerating=volume_info["averageRating"]
         ratingscount=volume_info["ratingsCount"]
-        print("YAY")
+
     elif responsedict["totalItems"]==0:
         res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": totalcheck})
         responsedict=res.json()
@@ -167,7 +165,6 @@ def book(record_id):
 
         if reviewtest.rowcount >= 1:
             response="You have already submitted a review for this book."
-            print(response)
         else:
             statement=text("""INSERT INTO reviews (id, starrating, description, currentuser, reviewdate) VALUES (:isbn, :starrating, :description, :currentuser, :date );""")
             db.execute(statement, reviewdata)
@@ -185,6 +182,7 @@ def logout():
     session["name"] = None
     return redirect("/")
 
+# Route to output a JSON file per book ISBN
 @app.route("/api/<isbn>")
 def jasonfile(isbn):
     data = ({"isbn": isbn},)
@@ -198,14 +196,17 @@ def jasonfile(isbn):
     author=None
 
     statement = text("SELECT * FROM booklist WHERE isbn ILIKE :isbn")
+
+    # Checking that requested ISBN exists
     row = db.execute(statement, data)
     if row.rowcount == 0:
         return redirect("/404")
 
     isbntest="isbn:"+isbn
     
-    statement = text("SELECT isbn, title, author, year FROM booklist WHERE isbn ILIKE :isbn")
-    row = db.execute(statement, data)
+    # statement = text("SELECT isbn, title, author, year FROM booklist WHERE isbn ILIKE :isbn")
+    # row = db.execute(statement, data)
+
     rows = row.fetchall()
     title=rows[0][1]
     author=rows[0][2]
@@ -220,38 +221,55 @@ def jasonfile(isbn):
         volume_info = responsedict["items"][0]["volumeInfo"]
         averagerating=volume_info["averageRating"]
         ratingscount=volume_info["ratingsCount"]
+        publishdate=volume_info["publishedDate"]
 
         # THIS PART NEEDS TO BE UPDATED TO MATCH THE PROPER IDENTIFIER
         test1=volume_info["industryIdentifiers"][0]["type"]
         test2=volume_info["industryIdentifiers"][1]["type"]
-        
-        # isbn_10=volume_info["industryIdentifiers"][value]["identifier"]
-        # isbn_13=volume_info["industryIdentifiers"][value2]["identifier"]
-        
 
-        print(volume_info)
+        if test1 == "ISBN_10":
+            isbn10_int=0
+            isbn13_int=1
+        if test2 == "ISBN_10":
+            isbn10_int=1
+            isbn13_int=0
         
-        print("YAY")
+        isbn_10=volume_info["industryIdentifiers"][isbn10_int]["identifier"]
+        isbn_13=volume_info["industryIdentifiers"][isbn13_int]["identifier"]
+        
     elif responsedict["totalItems"]==0:
         res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": totalcheck})
         responsedict=res.json()
         
         if responsedict["totalItems"]==0:
-             averagerating="This book does not exist"
+            return redirect("/404")
         else:      
             volume_info = responsedict["items"][0]["volumeInfo"]
             averagerating=volume_info["averageRating"]
             ratingscount=volume_info["ratingsCount"]
-            isbn_10=volume_info["industryIdentifiers"][0]["identifier"]
+            
+            test1=volume_info["industryIdentifiers"][0]["type"]
+            test2=volume_info["industryIdentifiers"][1]["type"]
 
-    publishdate=volume_info["publishedDate"]
+            if test1 == "ISBN_10":
+                isbn10_int=0
+                isbn13_int=1
+            if test2 == "ISBN_10":
+                isbn10_int=1
+                isbn13_int=0
+        
+            isbn_10=volume_info["industryIdentifiers"][isbn10_int]["identifier"]
+            isbn_13=volume_info["industryIdentifiers"][isbn13_int]["identifier"]
+
+            publishdate=volume_info["publishedDate"]
+
     # Data to be written
     dictionary = {
         "title": title,
         "author": author,
         "publishedDate": publishdate,
         "ISBN_10": isbn_10,
-        "ISBN_13": "9780802138255", 
+        "ISBN_13": isbn_13, 
         "reviewCount": ratingscount, 
         "averageRating": averagerating 
     }

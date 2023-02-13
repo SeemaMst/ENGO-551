@@ -6,7 +6,7 @@
         <style>
             .my-custom-scrollbar {
                 position: relative;
-                height: 600px;
+                height: 500px;
                 overflow: auto;
             }
             .table-wrapper-scroll-y {
@@ -33,14 +33,13 @@
                         </div>
                         <div>
                             <label> <b>Star Rating</b> </label>
-                            <input type = "text" class = "form-control mb-2 w-25" name = "starrating" placeholder="1-5 Stars" required>
+                            <input type = "number" class = "form-control mb-2 w-25" name = "starrating" placeholder="1-5 Stars" min="1" max="5" required>
                         </div>
                     
                         <button class="btn btn-primary btn-block mb-4">Submit!</button>
                     </form>
                     <p>{{ response }}</p>
                     <a href="{{ url_for('logout') }}"><button class="btn btn-light mb-2">Click here to Logout</button></href></a>
-                    <p></p>
                 </div> 
             </div>
         </div>
@@ -49,8 +48,8 @@
             <div class="card shadow-2-strong w-75 h-75" style="border-radius: 1rem;">
                 <div class="card-body">
                     <h2>Reviews Below:</h2>
-                    <p>Average Rating: {{ test }}</p>
-                    <p>Total Number of Ratings: {{ ratingscount }}</p>
+                    <p>Average Rating (Google Books API): {{ test }}</p>
+                    <p>Total Number of Ratings (Google Books API): {{ ratingscount }}</p>
                     <div class="table-wrapper-scroll-y my-custom-scrollbar">
                         <table class="table table-borderless mb-0">
                         <thead>
