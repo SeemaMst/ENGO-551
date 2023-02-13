@@ -189,6 +189,14 @@ def logout():
 def jasonfile(isbn):
     data = ({"isbn": isbn},)
 
+    # Setting all JSON file values to Null to begin with
+    isbn_10=None
+    isbn_13=None
+    averagerating=None
+    ratingscount=None
+    title=None
+    author=None
+
     statement = text("SELECT * FROM booklist WHERE isbn ILIKE :isbn")
     row = db.execute(statement, data)
     if row.rowcount == 0:
@@ -212,6 +220,17 @@ def jasonfile(isbn):
         volume_info = responsedict["items"][0]["volumeInfo"]
         averagerating=volume_info["averageRating"]
         ratingscount=volume_info["ratingsCount"]
+
+        # THIS PART NEEDS TO BE UPDATED TO MATCH THE PROPER IDENTIFIER
+        test1=volume_info["industryIdentifiers"][0]["type"]
+        test2=volume_info["industryIdentifiers"][1]["type"]
+        
+        # isbn_10=volume_info["industryIdentifiers"][value]["identifier"]
+        # isbn_13=volume_info["industryIdentifiers"][value2]["identifier"]
+        
+
+        print(volume_info)
+        
         print("YAY")
     elif responsedict["totalItems"]==0:
         res = requests.get("https://www.googleapis.com/books/v1/volumes", params={"q": totalcheck})
@@ -223,6 +242,7 @@ def jasonfile(isbn):
             volume_info = responsedict["items"][0]["volumeInfo"]
             averagerating=volume_info["averageRating"]
             ratingscount=volume_info["ratingsCount"]
+            isbn_10=volume_info["industryIdentifiers"][0]["identifier"]
 
     publishdate=volume_info["publishedDate"]
     # Data to be written
@@ -230,7 +250,7 @@ def jasonfile(isbn):
         "title": title,
         "author": author,
         "publishedDate": publishdate,
-        "ISBN_10": "080213825X",
+        "ISBN_10": isbn_10,
         "ISBN_13": "9780802138255", 
         "reviewCount": ratingscount, 
         "averageRating": averagerating 
