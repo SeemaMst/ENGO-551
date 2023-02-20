@@ -9,10 +9,14 @@
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
      integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
      crossorigin=""/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.0/MarkerCluster.Default.min.css" />
+
 	<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
      integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
      crossorigin="">
 	</script>
+	<script src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"></script>
 	<style>
 		#map{ height: 700px; }
 	</style>
@@ -43,16 +47,42 @@
 		}).addTo(map);
 
 		var add = "{{ add|safe }}" // stupid safe word
-		console.log(add)
+		// console.log(add)
 
-		fetch(
-  			add // this is a passed url
-		).then(
-  			res => res.json()
-		).then(
-  			data => L.geoJSON(data).addTo(map)
-		)
+		// fetch(
+  		// 	add // this is a passed url
+		// ).then(
+  		// 	res => res.json()
+		// ).then(
+  		// 	data => L.geoJSON(data,{
+		// 		onEachFeature: function(feature, layer){
+		// 			layer.bindPopup(feature.properties.issueddate + "<br>" + feature.properties.workclassgroup + "<br>" + feature.properties.contractorname + "<br>" + feature.properties.communityname + "<br>" + feature.properties.originaladdress)
+		// 		}
+		// 	}).addTo(map)
+		// )
 
+		async function load_shapefile(add) {
+      		let url = add;
+      		const response = await fetch(url)
+      		const shape_obj = await response.json();
+      		console.log(shape_obj);
+			var markers = L.markerClusterGroup();
+			var geoJsonLayer = L.geoJson(shape_obj, {
+		 		onEachFeature: function(feature, layer){
+		 			layer.bindPopup(feature.properties.issueddate + "<br>" + feature.properties.workclassgroup + "<br>" + feature.properties.contractorname + "<br>" + feature.properties.communityname + "<br>" + feature.properties.originaladdress)
+		 		}
+		 	}); //.addTo(map);
+			markers.addLayer(geoJsonLayer);
+			map.addLayer(markers);
+      		return shape_obj;
+    	}
+
+    	async function main(add) {
+      		const json = await load_shapefile(add);
+    	}
+
+		main(add)
+		
 		</script>
 
 </body>
