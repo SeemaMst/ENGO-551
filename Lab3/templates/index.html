@@ -37,8 +37,9 @@
 <body>
 
 <div class = "container">
-	<h1 class= "p-2"><center>Calgary Building Permits</center></h1>
+	<h1 class= "p-2"><center>Calgary Building Permits and Traffic Accidents</center></h1>
 	<p><center>Created by: Seema Mustaqeem and Luc Nicolet</center></p>
+	<p><center>Updated for ENGO 551 - Lab 4</center></p>
 
 	<div class="row">
 		<div id="mapformtest" class="text-center p-1">
@@ -73,8 +74,8 @@ $(function() {
 				}).addTo(map);
 
 				L.mapbox.accessToken='pk.eyJ1Ijoic2VlbWFtc3QiLCJhIjoiY2xldzduZWd6MGFveTQzczN1NDJxaXFuYSJ9.lunUE-1vqz1HrliNNE2Izg';
-				var testlayer = L.mapbox.styleLayer('mapbox://styles/seemamst/clew7qcgs000101qsaforl0kz');
-				// testlayer.addTo(map);
+				var testlayer = L.mapbox.styleLayer('mapbox://styles/seemamst/clf920ztb000c01p8l9dl6yz3/draft');
+				var testlayer2 = L.mapbox.styleLayer('mapbox://styles/seemamst/clf7eucx8000301nvr7dsompk/draft');
 				
 				var add = "{{ add|safe }}"
 
@@ -105,8 +106,9 @@ $(function() {
 					"OpenStreetMap": osm
 				};
 				var overlayMaps = {
-					"Mapbox Base": testlayer,
-					"Test Layer": markers
+					"Traffic Accidents - Light Mode": testlayer,
+					"Traffic Accidents - Dark Mode": testlayer2,
+					"Building Permits": markers
 				};
 				var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
 
