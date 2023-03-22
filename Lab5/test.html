@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MQTT Web App</title>
+</head>
+<body>
+  <h1>MQTT Web App</h1>
+  <div>
+    <label for="topic">Topic:</label>
+    <input type="text" id="topic">
+  </div>
+  <div>
+    <label for="message">Message:</label>
+    <input type="text" id="message">
+  </div>
+  <button id="publish">Publish</button>
+  <button id="subscribe">Subscribe</button>
+  <button id="unsubscribe">Unsubscribe</button>
+  <div id="messages"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.2/mqttws31.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
